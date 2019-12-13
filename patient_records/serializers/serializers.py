@@ -100,8 +100,54 @@ class SessionsListSerializer(ModelSerializer):
 		patient = PatientDetailsListSerializer(obj.patient).data 
 		return patient
 
+class SessionPaymentDetailsSerializer(ModelSerializer):
+
+	class Meta:
+		model = payment
+		fields = [
+			'payment_mode',
+			'payment_method',
+			'amount',
+			'company_name',
+			'mpesa_code',
+		]
+
+	def create(self, validated_data):
+		payment_obj = payment(
+			payment_mode=validated_data['payment_mode'] if validated_data['payment_mode'] != 'null' else None,
+			payment_method=validated_data['payment_method'] if validated_data['payment_method'] != 'null' else None,
+			amount=validated_data['amount'] if validated_data['amount'] != 'null' else None,
+			company_name=validated_data['company_name'] if validated_data['company_name'] != 'null' else None,
+			mpesa_code=validated_data['mpesa_code'] if validated_data['mpesa_code'] != 'null' else None
+			)
+		payment_obj.save()
+
+		return payment_obj
+
+class SessionDoctorNotesSerializer(ModelSerializer):
+
+	class Meta:
+		model = patient_medical_records
+		fields = [
+			'complaints',
+			'investigations',
+			'treatment'
+		]
+
+	def create(self, validated_data):
+		patient_medical_records_obj = patient_medical_records(
+			complaints=validated_data['complaints'],
+			investigations=validated_data['investigations'],
+			treatment=validated_data['treatment'],
+			)
+		patient_medical_records_obj.save()
+
+		return patient_medical_records_obj
+
 class SessionDetailsSerializer(ModelSerializer):
 	patient = SerializerMethodField()
+	payment = SerializerMethodField()
+	doctor_session = SerializerMethodField()
 	
 	class Meta:
 		model = session
@@ -120,3 +166,11 @@ class SessionDetailsSerializer(ModelSerializer):
 	def get_patient(self,obj):
 		patient = RetrievePatientDetailsSerializer(obj.patient).data 
 		return patient
+
+	def get_payment(self,obj):
+		payment = SessionPaymentDetailsSerializer(obj.payment).data 
+		return payment
+
+	def get_doctor_session(self,obj):
+		doctor_session = SessionDoctorNotesSerializer(obj.doctor_session).data 
+		return doctor_session

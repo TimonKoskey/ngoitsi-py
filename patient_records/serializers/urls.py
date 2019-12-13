@@ -8,6 +8,10 @@ from .views import (
 	DeletePatientDetailsAPIView,
 	StartNewSessionAPIView,
 	SessionListAPIView,
+	GetSessionDetailsAPIView,
+	SessionLevelOneAPIView,
+	SessionLevelTwoAPIView,
+	SessionFinalLevelAPIView
 	)
 
 urlpatterns = [
@@ -18,4 +22,8 @@ urlpatterns = [
     path('patient/delete/<int:pk>', DeletePatientDetailsAPIView.as_view()),
     path('session/new', StartNewSessionAPIView.as_view()),
     path('session/list', SessionListAPIView.as_view()),
+    path('session/details/<int:pk>', GetSessionDetailsAPIView.as_view()),
+    path('session/details/stage-one', SessionLevelOneAPIView.as_view()),
+    path('session/details/stage-two', SessionLevelTwoAPIView.as_view()),
+    path('session/details/stage-three', SessionFinalLevelAPIView.as_view()),
 	]
