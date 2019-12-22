@@ -11,6 +11,9 @@ from patient_records.models import (
 	patient_medical_records,
 	payment,
 	session,
+	session_one,
+	session_two,
+	session_three,
 	)
 
 class CreatePatientDetailsSerializer(ModelSerializer):
@@ -93,6 +96,7 @@ class SessionsListSerializer(ModelSerializer):
 		fields = [
 			'id',
 			'patient',
+			'session_starting_time',
 			'session_state'
 		]
 
@@ -100,11 +104,76 @@ class SessionsListSerializer(ModelSerializer):
 		patient = PatientDetailsListSerializer(obj.patient).data 
 		return patient
 
+class SessionDetailsSerializer(ModelSerializer):
+	patient = SerializerMethodField()
+	
+	class Meta:
+		model = session
+		fields = [
+			'id',
+			'patient',
+			'session_date',
+			'session_state',
+			'session_starting_time',
+			'session_ending_time',
+		]
+
+	def get_patient(self,obj):
+		patient = RetrievePatientDetailsSerializer(obj.patient).data 
+		return patient
+
+class SessionOneSerializer(ModelSerializer):
+	medical_information = SerializerMethodField()
+	
+	class Meta:
+		model = session_one
+		fields = [
+			'id',
+			'session',
+			'medical_information',
+			'is_completed'
+		]
+
+	def get_medical_information(self,obj):
+		medical_information_obj = patient_medical_records.objects.get(session=obj)
+		medical_information = SessionDoctorNotesSerializer(medical_information_obj).data
+		return medical_information
+
+class SessionTwoSerializer(ModelSerializer):
+	payment = SerializerMethodField()
+	
+	class Meta:
+		model = session_two
+		fields = [
+			'id',
+			'session',
+			'payment',
+			'is_completed'
+		]
+
+	def get_payment(self,obj):
+		payment_qs = payment.objects.filter(session=obj)
+		payment = SessionPaymentDetailsSerializer(payment_qs,many=True).data 
+		return payment
+
+class SessionThreeSerializer(ModelSerializer):
+	
+	class Meta:
+		model = session_three
+		fields = [
+			'id',
+			'session',
+			'follow_up_date',
+			'is_completed'
+		]
+
 class SessionPaymentDetailsSerializer(ModelSerializer):
 
 	class Meta:
 		model = payment
 		fields = [
+			'id',
+			'session',
 			'payment_mode',
 			'payment_method',
 			'amount',
@@ -129,6 +198,8 @@ class SessionDoctorNotesSerializer(ModelSerializer):
 	class Meta:
 		model = patient_medical_records
 		fields = [
+			'id',
+			'session',
 			'complaints',
 			'investigations',
 			'treatment'
@@ -143,34 +214,3 @@ class SessionDoctorNotesSerializer(ModelSerializer):
 		patient_medical_records_obj.save()
 
 		return patient_medical_records_obj
-
-class SessionDetailsSerializer(ModelSerializer):
-	patient = SerializerMethodField()
-	payment = SerializerMethodField()
-	doctor_session = SerializerMethodField()
-	
-	class Meta:
-		model = session
-		fields = [
-			'id',
-			'patient',
-			'payment',
-			'doctor_session',
-			'session_date',
-			'session_starting_time',
-			'session_ending_time',
-			'session_state',
-			'follow_up_date',
-		]
-
-	def get_patient(self,obj):
-		patient = RetrievePatientDetailsSerializer(obj.patient).data 
-		return patient
-
-	def get_payment(self,obj):
-		payment = SessionPaymentDetailsSerializer(obj.payment).data 
-		return payment
-
-	def get_doctor_session(self,obj):
-		doctor_session = SessionDoctorNotesSerializer(obj.doctor_session).data 
-		return doctor_session

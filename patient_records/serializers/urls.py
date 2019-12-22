@@ -9,9 +9,7 @@ from .views import (
 	StartNewSessionAPIView,
 	SessionListAPIView,
 	GetSessionDetailsAPIView,
-	SessionLevelOneAPIView,
-	SessionLevelTwoAPIView,
-	SessionFinalLevelAPIView
+	EndSessionAPIView
 	)
 
 urlpatterns = [
@@ -23,7 +21,5 @@ urlpatterns = [
     path('session/new', StartNewSessionAPIView.as_view()),
     path('session/list', SessionListAPIView.as_view()),
     path('session/details/<int:pk>', GetSessionDetailsAPIView.as_view()),
-    path('session/details/stage-one', SessionLevelOneAPIView.as_view()),
-    path('session/details/stage-two', SessionLevelTwoAPIView.as_view()),
-    path('session/details/stage-three', SessionFinalLevelAPIView.as_view()),
+    path('session/end-session', EndSessionAPIView.as_view()),
 	]
